@@ -1,0 +1,38 @@
+name: Publish image to registry
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - develop
+
+env:
+  REGISTRY_URL: ${{ vars.REGISTRY_URL }}
+  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+  REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+  TAG: ${{ github.ref_name }}
+
+jobs:
+  publish:
+    name: Publish image to Harbor registry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Login to Registry
+        run: |
+          # Login to registry
+          echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USERNAME" --password-stdin $REGISTRY_URL
+
+          # Build the image and push it to registry
+          docker build -f Dockerfile.prod -t $REGISTRY_URL/$IMAGE_NAME:$TAG .
+          docker push $REGISTRY_URL/$IMAGE_NAME:$TAG
+
+          # Push the image to latest if it's not a develop tag
+          if [ "$TAG" != "develop" ]; then
+            docker tag $REGISTRY_URL/$IMAGE_NAME:$TAG $REGISTRY_URL/$IMAGE_NAME:latest
+            docker push $REGISTRY_URL/$IMAGE_NAME:latest
+          fi

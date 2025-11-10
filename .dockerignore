@@ -1,0 +1,8 @@
+config.yml
+compose.yml
+.github
+.editorconfig
+Dockerfile
+node_modules
+.prettierrc
+.vscode

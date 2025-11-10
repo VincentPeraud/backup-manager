@@ -1,0 +1,30 @@
+{
+    "name": "backup-manager",
+    "version": "0.0.0",
+    "main": "main.ts",
+    "license": "MIT",
+    "scripts": {
+        "start": "tsx src/main.ts"
+    },
+    "devDependencies": {
+        "@types/figlet": "^1.7.0",
+        "@types/lodash": "^4.17.20",
+        "@types/node": "^24.10.0",
+        "@types/ora": "^3.2.0",
+        "prettier": "^3.6.2",
+        "typescript": "^5.9.3"
+    },
+    "dependencies": {
+        "class-transformer": "^0.5.1",
+        "class-validator": "^0.14.2",
+        "dayjs": "^1.11.19",
+        "figlet": "^1.9.3",
+        "lodash": "^4.17.21",
+        "ora": "^9.0.0",
+        "reflect-metadata": "^0.2.2",
+        "yaml": "^2.8.1"
+    },
+    "volta": {
+        "node": "24.11.0"
+    }
+}

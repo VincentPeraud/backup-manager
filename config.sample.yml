@@ -1,0 +1,49 @@
+settings:
+  server_name: My production server
+  retention:
+    keep_daily: 14
+    keep_weekly: 8
+    keep_monthly: 12
+  destinations:
+    - name: my_backup_server
+      type: rsync
+      user: root
+      host: domain.com
+      port: 22
+      key: /id_rsa
+
+jobs:
+  - name: 'my_website1'
+    destination:
+      name: my_backup_server
+      path: /root/test-backups/my_website1
+    pre_commands:
+      - 'docker exec my_website1-mariadb-1 mariadb-dump -u username -ppassword database > {{TMP_DIR}}/database.sql'
+    sources:
+      - type: file
+        name: database
+        path: '{{TMP_DIR}}/database.sql'
+      - type: folder
+        name: www
+        path: /volumes/my_website1_public_html
+  - name: 'my_website2'
+    destination:
+      name: my_backup_server
+      path: /root/test-backups/my_website2
+    pre_commands:
+      - 'docker exec my_website2-mariadb-1 mariadb-dump -u username -ppassword database > {{TMP_DIR}}/database.sql'
+    sources:
+      - type: file
+        name: database
+        path: '{{TMP_DIR}}/database.sql'
+      - type: folder
+        name: www
+        path: /volumes/my_website2_public_html
+
+notifications:
+  on_success: ['mattermost']
+  on_failure: ['mattermost']
+  mattermost:
+    bot_token: bot-token-here
+    channel_id: channel-id-here
+    server_url: https://mattermost.mycompany.com
