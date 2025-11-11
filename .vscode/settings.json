@@ -1,0 +1,17 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "typescript.preferences.importModuleSpecifier": "non-relative",
+    "typescript.preferences.quoteStyle": "single",
+    "search.useIgnoreFiles": false,
+    "editor.formatOnSave": true,
+    "search.exclude": {
+        "**/node_modules": true,
+        "dist": true,
+        "documentation": true,
+        "src/shared/commands/deprecated/**": true,
+        "ormlogs.log": true
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+}

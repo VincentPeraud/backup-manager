@@ -1,0 +1,9 @@
+{
+    "extraFiles": [
+        {
+            "path": "README.md",
+            "search": "version-\\d+\\.\\d+\\.\\d+",
+            "replace": "version-${version}"
+        }
+    ]
+}

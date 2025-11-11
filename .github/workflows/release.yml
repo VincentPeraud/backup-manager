@@ -1,0 +1,24 @@
+name: Release on PR merge to master
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+concurrency:
+  group: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Run Release Manager
+        uses: vao-technologies/release-manager-action@v1
+        with:
+          bot_github_token: ${{ secrets.BOT_GITHUB_TOKEN }}
+          ghcr_token: ${{ secrets.GHCR_TOKEN }}
+          mattermost_webhook_url: ${{ vars.MATTERMOST_WEBHOOK_URL }}

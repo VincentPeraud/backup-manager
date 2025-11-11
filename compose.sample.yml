@@ -1,0 +1,22 @@
+services:
+    backup-manager:
+        image: my-registry/backup-manager:latest
+        volumes:
+            # Docker socket
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            # Config file
+            - ./config.yml:/config.yml:ro
+            # SSH key (don't put read only)
+            - ~/.ssh/id_rsa_no_password:/id_rsa
+            # Volumes to backup
+            - my_website1_public_html:/volumes/my_website1_public_html:ro
+            - my_website2_public_html:/volumes/my_website2_public_html:ro
+            # Shared folder (for downloaded backups)
+            - ./shared:/shared
+
+volumes:
+    # Volumes to backup
+    my_website1_public_html:
+        external: true
+    my_website2_public_html:
+        external: true
