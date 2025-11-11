@@ -299,15 +299,22 @@ export class BackupManager {
 
     public async testNotifications(): Promise<void> {
         if (this.config.notifications.on_success.includes('mattermost')) {
-            this.spinner.start('Sending test notification...');
-            await Mattermost.send(
-                this.config.notifications.mattermost,
-                '🔔 Notification test message from Backup Manager (' +
-                    this.config.settings.server_name +
-                    ')',
-            );
-            this.spinner.succeed('Sent test notification');
-            console.log('');
+            const spinnerText = 'Send test notification';
+            this.spinner.start(spinnerText);
+            try {
+                await Mattermost.send(
+                    this.config.notifications.mattermost,
+                    '🔔 Notification test message from Backup Manager (' +
+                        this.config.settings.server_name +
+                        ')',
+                );
+                this.spinner.succeed(spinnerText);
+                console.log('');
+            } catch (error) {
+                this.spinner.fail(spinnerText);
+                console.log('');
+                throw error;
+            }
         }
     }
 }

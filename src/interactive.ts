@@ -12,6 +12,7 @@ import { confirm } from '@inquirer/prompts';
         const jobNames = backupManager.getJobNames();
         const jobName = await select({
             message: 'Select a job',
+            pageSize: 50,
             choices: [
                 ...jobNames.map((name) => ({ name, value: name })),
                 new Separator('---'),
