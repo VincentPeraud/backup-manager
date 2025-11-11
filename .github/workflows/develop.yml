@@ -6,7 +6,7 @@ on:
       - develop
 
 concurrency:
-  group: publish
+  group: develop
 
 env:
   REGISTRY_URL: ${{ vars.REGISTRY_URL }}
