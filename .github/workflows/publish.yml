@@ -39,3 +39,25 @@ jobs:
             docker tag $REGISTRY_URL/$IMAGE_NAME:$TAG $REGISTRY_URL/$IMAGE_NAME:latest
             docker push $REGISTRY_URL/$IMAGE_NAME:latest
           fi
+
+      - name: Update Docker Hub repository description
+        if: env.REGISTRY_URL == 'docker.io'
+        env:
+          README_CONTENT: ${{ github.workspace }}/README.md
+        run: |
+          echo "Updating Docker Hub description from README.md"
+          BODY=$(jq -n --arg desc "$(cat "$README_CONTENT")" '{full_description: $desc}')
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/hub_response.txt \
+            -X PATCH \
+            https://hub.docker.com/v2/repositories/$IMAGE_NAME/ \
+            -u "$REGISTRY_USERNAME:$REGISTRY_PASSWORD" \
+            -H "Content-Type: application/json" \
+            -d "$BODY")
+
+          if [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "Docker Hub description updated successfully."
+          else
+            echo "Failed to update Docker Hub description (status: $RESPONSE)."
+            cat /tmp/hub_response.txt
+            exit 1
+          fi
