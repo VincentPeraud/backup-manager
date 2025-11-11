@@ -1,6 +1,6 @@
 # 🛡️ Backup Manager
 
-![Version](https://img.shields.io/badge/version-0.0.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge)
 
 Backup Manager is a containerized backup orchestrator that keeps rsync-based retention policies tidy, runs preparatory commands, and notifies your team when jobs succeed or fail.
 
