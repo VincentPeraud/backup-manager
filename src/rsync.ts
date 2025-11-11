@@ -11,6 +11,8 @@ export class Rsync {
     private _sshCommand: string;
     private _job: ConfigJob;
     private _config: RsyncConfig;
+    private rsyncPermOptions =
+        '--no-perms --no-owner --no-group --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r';
 
     async init(job: ConfigJob, config: RsyncConfig): Promise<void> {
         this._job = job;
@@ -56,7 +58,7 @@ export class Rsync {
     }
 
     private async _backupSource(localPath: string, remoteFolder: string): Promise<void> {
-        const rsyncCommand = `rsync -e "${this._sshCommand}" -av --delete --no-links ${localPath} ${this._config.user}@${this._config.host}:${remoteFolder}`;
+        const rsyncCommand = `rsync -e "${this._sshCommand}" ${this.rsyncPermOptions} -vrt --delete --no-links ${localPath} ${this._config.user}@${this._config.host}:${remoteFolder}`;
         await Utils.runCommand(rsyncCommand, []);
     }
 
@@ -150,7 +152,7 @@ export class Rsync {
         const { user, host } = this._config;
 
         Utils.runCommand(`mkdir -p ${to.replace(/\/$/, '')}`, []);
-        const rsyncCommand = `rsync -e "${this._sshCommand}" -av --delete --no-links ${user}@${host}:${from} ${to}`;
+        const rsyncCommand = `rsync -e "${this._sshCommand}" ${this.rsyncPermOptions} -vrt --delete --no-links ${user}@${host}:${from} ${to}`;
         await Utils.runCommand(rsyncCommand, []);
 
         return to;
