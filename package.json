@@ -4,7 +4,9 @@
     "main": "main.ts",
     "license": "MIT",
     "scripts": {
-        "start": "tsx src/main.ts"
+        "start": "tsx src/main.ts",
+        "interactive": "tsx src/interactive.ts",
+        "i": "yarn interactive"
     },
     "devDependencies": {
         "@types/figlet": "^1.7.0",
@@ -15,6 +17,7 @@
         "typescript": "^5.9.3"
     },
     "dependencies": {
+        "@inquirer/prompts": "^7.10.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.2",
         "dayjs": "^1.11.19",

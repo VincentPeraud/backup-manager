@@ -10,6 +10,7 @@ Backup Manager is a containerized backup orchestrator that keeps rsync-based ret
 - [✨ Features](#-features)
 - [⚙️ Requirements](#️-requirements)
 - [🚀 Quick Start](#-quick-start)
+- [🧑‍💻 Interactive Mode](#-interactive-mode)
 - [🧰 Configuration](#-configuration)
 - [🐳 Docker Usage](#-docker-usage)
 - [📬 Notifications](#-notifications)
@@ -23,6 +24,7 @@ Backup Manager is a containerized backup orchestrator that keeps rsync-based ret
 - Pre-backup shell commands for dumping databases or preparing artifacts.
 - Optional Mattermost notifications on success or failure (Slack planned but not implemented yet).
 - Ships as a ready-to-run Docker image for consistent execution anywhere Docker is available.
+- Interactive terminal workflow to launch jobs, list remote backups, and download snapshots.
 
 ## ⚙️ Requirements
 
@@ -46,8 +48,15 @@ Backup Manager is a containerized backup orchestrator that keeps rsync-based ret
     docker compose pull
     docker compose run --rm backup-manager
     ```
+6. (Optional) Mount a host directory at `/shared` when you want to download backups via the interactive mode.
 
 The container prints progress spinners, executes pre-commands, performs rsync transfers, and tidies old backups according to your retention policy.
+
+## 🧑‍💻 Interactive Mode
+
+- Launch locally with `yarn interactive` (or the shorthand `yarn i`) to pick jobs, run backups, list remote snapshots, or download archives.
+- When running the Docker image, invoke `docker compose run --rm backup-manager interactive` to start the same prompt-driven workflow.
+- Downloads are written to `/shared/<job-name>/<timestamp>/`; mount a host directory at `/shared` (see `compose.sample.yml`) to keep retrieved data after the container exits.
 
 ## 🧰 Configuration
 
@@ -73,6 +82,7 @@ Use `config.sample.yml` as a starting point.
                 - ~/.ssh/id_rsa_no_password:/id_rsa
                 - my_website1_public_html:/volumes/my_website1_public_html:ro
                 - my_website2_public_html:/volumes/my_website2_public_html:ro
+                - ./shared:/shared
 
     volumes:
         my_website1_public_html:
@@ -85,7 +95,11 @@ Use `config.sample.yml` as a starting point.
 
 - **Config file**: place `config.yml` next to your compose file and ensure every source path mounted into the container matches the paths configured in `jobs[].sources[].path`.
 
-- **Runtime**: run `docker compose run --rm backup-manager`.
+- **Shared folder**: map a host directory at `/shared` when you plan to download backups via the interactive mode.
+
+- **Runtime**:
+    - Non-interactive: `docker compose run --rm backup-manager`
+    - Interactive: `docker compose run --rm backup-manager interactive`
 
 ## 📬 Notifications
 

@@ -13,17 +13,22 @@ export class BackupManager {
     private config: Config;
     private spinner: Ora;
 
-    public async execute() {
-        Utils.headerTitle('Backup Manager');
-
+    private constructor() {
         this.spinner = ora();
+    }
 
-        await this._loadConfig();
-        await this._checkConfig();
+    public static async create(): Promise<BackupManager> {
+        const instance = new BackupManager();
+        await instance._loadConfig();
+        await instance._checkConfig();
 
+        return instance;
+    }
+
+    public async backup(): Promise<void> {
         for (const job of this.config.jobs) {
             try {
-                await this._processJob(job);
+                await this.processJob(job);
                 await this._notifyOnSuccess(job);
             } catch (error) {
                 await this._notifyOnFailure(job, error);
@@ -33,6 +38,29 @@ export class BackupManager {
                 console.log('');
             }
         }
+    }
+
+    async list(name: string): Promise<void> {
+        Utils.headerTitle('List backups');
+
+        await this._loadConfig();
+        await this._checkConfig();
+
+        const job = this.config.jobs.find((j) => j.name === name);
+        if (!job) {
+            throw new Error(`Job \`${name}\` not found`);
+        }
+
+        const destination = this.config.settings.destinations.find(
+            (d) => d.name === job.destination.name,
+        );
+        if (!destination) {
+            throw new Error(`Destination \`${job.destination.name}\` not found`);
+        }
+
+        const remoteFolder = job.destination.path.replace(/\/$/, '') + '/';
+
+        console.log(remoteFolder);
     }
 
     private async _loadConfig(): Promise<void> {
@@ -92,9 +120,10 @@ export class BackupManager {
         }
 
         this.spinner.succeed('Check config');
+        console.log('');
     }
 
-    private async _processJob(job: ConfigJob): Promise<void> {
+    public async processJob(job: ConfigJob): Promise<void> {
         console.log('');
         const title = `🚀 JOB: ${job.name}`;
         console.log(title);
@@ -215,6 +244,56 @@ export class BackupManager {
                 '---',
             ].join('\n');
             await Mattermost.send(this.config.notifications.mattermost, message);
+        }
+    }
+
+    public getJobNames(): string[] {
+        return this.config.jobs.map((j) => j.name);
+    }
+
+    public getJobByName(name: string): ConfigJob {
+        return this.config.jobs.find((j) => j.name === name);
+    }
+
+    public async getJobBackups(job: ConfigJob): Promise<string[]> {
+        const config = this.config.settings.destinations.find(
+            (d) => d.name === job.destination.name,
+        );
+
+        if (config.type === 's3') {
+            throw new Error('S3 backup is not supported yet');
+        }
+
+        if (config instanceof RsyncConfig) {
+            const rsync = new Rsync();
+            await rsync.init(job, config);
+            const backups = await rsync.getExistingBackups();
+
+            return backups;
+        }
+
+        return [];
+    }
+
+    public async downloadBackup(
+        localFolder: string,
+        job: ConfigJob,
+        backup: string,
+    ): Promise<void> {
+        const config = this.config.settings.destinations.find(
+            (d) => d.name === job.destination.name,
+        );
+
+        if (config.type === 's3') {
+            throw new Error('S3 backup is not supported yet');
+        }
+
+        if (config instanceof RsyncConfig) {
+            const rsync = new Rsync();
+            await rsync.init(job, config);
+            this.spinner.start(`Downloading backup \`${backup}\`...`);
+            const localPath = await rsync.downloadBackup(localFolder, backup);
+            this.spinner.succeed(`Backup \`${backup}\` downloaded to \`${localPath}\``);
         }
     }
 }

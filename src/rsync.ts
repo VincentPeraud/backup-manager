@@ -26,12 +26,12 @@ export class Rsync {
         // get existing backups
         const spinnerPrefix = spinner.text;
         spinner.text = `${spinnerPrefix} - Get existing backups...`;
-        const existingBackups = await this._getExistingBackups();
+        const existingBackups = await this.getExistingBackups();
 
         if (existingBackups.length > 0) {
             // Copy last backup to destination
             spinner.text = `${spinnerPrefix} - Copy last backup to destination...`;
-            await this._copyBackup(existingBackups[0], source, remoteFolder);
+            await this._copyBackup(remoteFolderPrefix, existingBackups[0], source, remoteFolder);
         } else {
             await this._createRemoteFolder(remoteFolder);
         }
@@ -64,7 +64,7 @@ export class Rsync {
         return `${prefix.replace(/\/$/, '')}/${source.name}/`;
     }
 
-    private async _getExistingBackups(): Promise<string[]> {
+    public async getExistingBackups(): Promise<string[]> {
         try {
             const listCommand = `${this._sshCommand} ${this._config.user}@${this._config.host} "ls -1 ${this._job.destination.path}"`;
             const { stdout: list } = await Utils.runCommand(listCommand, []);
@@ -80,6 +80,7 @@ export class Rsync {
     }
 
     private async _copyBackup(
+        remoteFolderPrefix: string,
         existingBackupFolder: string,
         source: ConfigJobSource,
         remoteFolder: string,
@@ -91,7 +92,7 @@ export class Rsync {
             return;
         }
 
-        const createFolderCommand = `${this._sshCommand} ${this._config.user}@${this._config.host} "mkdir -p ${to}"`;
+        const createFolderCommand = `${this._sshCommand} ${this._config.user}@${this._config.host} "mkdir -p ${remoteFolderPrefix.replace(/\/$/, '')}"`;
         await Utils.runCommand(createFolderCommand, []);
 
         const copyCommand = `${this._sshCommand} ${this._config.user}@${this._config.host} "cp -r ${from} ${to}"`;
@@ -99,7 +100,7 @@ export class Rsync {
     }
 
     async cleanUpBackupFolder(retention: ConfigRetention): Promise<number> {
-        const backups = await this._getExistingBackups();
+        const backups = await this.getExistingBackups();
         const backupFoldersToKeep = this._getBackupFoldersToKeep(retention);
         let removedBackups = 0;
         for (const backup of backups) {
@@ -140,5 +141,18 @@ export class Rsync {
         }
 
         return _.uniq(backupFolders);
+    }
+
+    public async downloadBackup(localFolder: string, backup: string): Promise<string> {
+        const from = `${backup.replace(/\/$/, '')}/`;
+        const to = `${localFolder.replace(/\/$/, '')}/${this._job.name}/${backup.split('/').pop()}/`;
+
+        const { user, host } = this._config;
+
+        Utils.runCommand(`mkdir -p ${to.replace(/\/$/, '')}`, []);
+        const rsyncCommand = `rsync -e "${this._sshCommand}" -av --delete --no-links ${user}@${host}:${from} ${to}`;
+        await Utils.runCommand(rsyncCommand, []);
+
+        return to;
     }
 }

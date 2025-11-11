@@ -11,6 +11,8 @@ services:
             # Volumes to backup
             - my_website1_public_html:/volumes/my_website1_public_html:ro
             - my_website2_public_html:/volumes/my_website2_public_html:ro
+            # Shared folder (for downloaded backups)
+            - ./shared:/shared
 
 volumes:
     # Volumes to backup

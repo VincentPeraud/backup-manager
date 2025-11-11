@@ -1,10 +1,13 @@
 import 'reflect-metadata';
 import { BackupManager } from './backup-manager';
+import { Utils } from './utils';
 
 (async () => {
-    const backupManager = new BackupManager();
+    Utils.headerTitle('Backup Manager');
+
     try {
-        await backupManager.execute();
+        const backupManager = await BackupManager.create();
+        await backupManager.backup();
     } catch (error) {
         console.log('');
         console.error(error instanceof Error ? error.toString() : String(error));
