@@ -7,6 +7,9 @@ on:
     branches:
       - develop
 
+concurrency:
+  group: publish
+
 env:
   REGISTRY_URL: ${{ vars.REGISTRY_URL }}
   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
