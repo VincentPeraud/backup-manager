@@ -16,7 +16,7 @@ env:
 
 jobs:
   publish:
-    name: Publish image to Harbor registry
+    name: Publish image to registry
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
