@@ -12,6 +12,7 @@ Backup Manager is a containerized backup orchestrator that keeps rsync-based ret
 - [🚀 Quick Start](#-quick-start)
 - [🧑‍💻 Interactive Mode](#-interactive-mode)
 - [🧰 Configuration](#-configuration)
+    - [SSH key format](#ssh-key-format)
 - [🐳 Docker Usage](#-docker-usage)
 - [📬 Notifications](#-notifications)
 - [🧪 Development](#-development)
@@ -67,6 +68,12 @@ The container prints progress spinners, executes pre-commands, performs rsync tr
 - `notifications`: choose `mattermost` or `slack` for `on_success` and `on_failure`; provide the matching configuration section. Slack is not implemented yet, so only `mattermost` has effect today.
 
 Use `config.sample.yml` as a starting point.
+
+### SSH key format
+
+- Prefer generating an Ed25519 key (`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519`) for rsync destinations; it works out of the box in the container.
+- If you keep using RSA, convert the private key to the legacy PEM format so OpenSSH can read it inside the container:  
+  `ssh-keygen -p -m PEM -f ~/.ssh/id_rsa`
 
 ## 🐳 Docker Usage
 
