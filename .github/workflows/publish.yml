@@ -40,6 +40,9 @@ jobs:
     needs: publish
     if: vars.REGISTRY_URL == 'docker.io'
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Update Docker Hub repository description
         env:
           README_CONTENT: ${{ github.workspace }}/README.md
