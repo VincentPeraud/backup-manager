@@ -16,12 +16,18 @@ import { confirm } from '@inquirer/prompts';
                 ...jobNames.map((name) => ({ name, value: name })),
                 new Separator('---'),
                 { name: '💾 Backup all jobs', value: 'backup-all' },
+                { name: '🔔 Test notifications', value: 'test-notifications' },
                 { name: '🏃 Exit', value: 'exit' },
             ],
         });
         console.log('');
 
         if (jobName === 'exit') {
+            process.exit(0);
+        }
+
+        if (jobName === 'test-notifications') {
+            await backupManager.testNotifications();
             process.exit(0);
         }
 

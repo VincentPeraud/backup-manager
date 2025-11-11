@@ -296,4 +296,18 @@ export class BackupManager {
             this.spinner.succeed(`Backup \`${backup}\` downloaded to \`${localPath}\``);
         }
     }
+
+    public async testNotifications(): Promise<void> {
+        if (this.config.notifications.on_success.includes('mattermost')) {
+            this.spinner.start('Sending test notification...');
+            await Mattermost.send(
+                this.config.notifications.mattermost,
+                '🔔 Notification test message from Backup Manager (' +
+                    this.config.settings.server_name +
+                    ')',
+            );
+            this.spinner.succeed('Sent test notification');
+            console.log('');
+        }
+    }
 }
